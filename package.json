@@ -6,6 +6,7 @@
     "type": "git",
     "url": ""
   },
+  "bin": "bin/swagger-example.js",
   "main": "out/src/index.js",
   "scripts": {
     "tsc": "tsc",
