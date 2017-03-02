@@ -6,23 +6,35 @@ import { JsonPointer } from '@hn3000/json-ref';
 
 import { Template } from '@hn3000/simpletemplate';
 
+import Chance = require('chance');
+
+let chance = new Chance();
+
 interface IGenerators {
   faker: any;
   chance: any;
   randexp: (re: string) => any;
 }
 
+function padNumber(n:number, d:number) {
+  let digits = n.toString(10).length;
+  let result = '0000000000000000000000000'.substring(0, Math.max(0, d-digits)) + d;
+
+  return result;
+}
+
 jsf.format('date', (gen: IGenerators, schema: any) => {
   //let result = gen.randexp('^\\d{4}-\\d{2}-\\d{2}$');
   let date = new Date((Math.random()*2-1)*Date.now());
-  let result = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+  let result = `${date.getFullYear()}-${padNumber(date.getMonth(),2)}-${padNumber(date.getDate(),2)}`;
   console.error(`date schema: ${result} for ${JSON.stringify(schema)}`);
   return result;
 });
 
 jsf.format('guid', (gen: IGenerators, schema: any) => {
-  let guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
-  let result = gen.randexp(guidPattern);
+  //let guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
+  //let result = gen.randexp(guidPattern);
+  let result = chance.guid();
   console.error(`guid schema: ${result} for ${JSON.stringify(schema)}`);
   return result;
 });

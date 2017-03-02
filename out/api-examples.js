@@ -3,16 +3,24 @@ exports.__esModule = true;
 var jsf = require("json-schema-faker");
 var json_ref_1 = require("@hn3000/json-ref");
 var simpletemplate_1 = require("@hn3000/simpletemplate");
+var Chance = require("chance");
+var chance = new Chance();
+function padNumber(n, d) {
+    var digits = n.toString(10).length;
+    var result = '0000000000000000000000000'.substring(0, Math.max(0, d - digits)) + d;
+    return result;
+}
 jsf.format('date', function (gen, schema) {
     //let result = gen.randexp('^\\d{4}-\\d{2}-\\d{2}$');
     var date = new Date((Math.random() * 2 - 1) * Date.now());
-    var result = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
+    var result = date.getFullYear() + "-" + padNumber(date.getMonth(), 2) + "-" + padNumber(date.getDate(), 2);
     console.error("date schema: " + result + " for " + JSON.stringify(schema));
     return result;
 });
 jsf.format('guid', function (gen, schema) {
-    var guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
-    var result = gen.randexp(guidPattern);
+    //let guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
+    //let result = gen.randexp(guidPattern);
+    var result = chance.guid();
     console.error("guid schema: " + result + " for " + JSON.stringify(schema));
     return result;
 });
