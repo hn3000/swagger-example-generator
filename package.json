@@ -1,0 +1,32 @@
+{
+  "name": "swagger-example-generator",
+  "version": "0.1.0",
+  "description": "Annotate swagger file with generated example data",
+  "main": "out/src/index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "test": "tape out/test/index.js"
+  },
+  "keywords": [
+    "swagger",
+    "openapi",
+    "example",
+    "generation"
+  ],
+  "author": "Harald Niesche",
+  "license": "MIT",
+  "dependencies": {
+    "@hn3000/json-ref": "github:hn3000/json-ref",
+    "@hn3000/simpletemplate": "github:hn3000/simpletemplate",
+    "@types/minimist": "^1.2.0",
+    "json-schema-faker": "^0.4.0",
+    "minimist": "^1.2.0",
+    "swagger-parser": "^3.4.1",
+    "sway": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.5",
+    "@types/swagger-schema-official": "^2.0.0",
+    "typescript": "^2.2.1"
+  }
+}
