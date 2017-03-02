@@ -74,6 +74,11 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
 
   for (let opp of operationPointers) {
     let operation = opp.getValue(apiSpec) as SwaggerSchema.Operation;
+
+    if (null != result[operation.operationId]) {
+      continue;
+    }
+
     let requestSchema = getRequestSchema(operation);
     let responsesSchema = getResponsesSchema(operation);
 
@@ -175,7 +180,7 @@ function getRequestSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Sch
       console.error(`duplicate parameter ${p.name} in ${operation.operationId}`);
     }
     pp.setValue(result.properties, schema, true);
-    if (p.required) {
+    if (p.required && p.in !== 'body') {
       let rp = new JsonPointer([p.in, 'required', '-']);
       rp.setValue(result.properties, p.name, true);
     }

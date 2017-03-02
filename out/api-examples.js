@@ -39,6 +39,9 @@ function exemplify(apiSpec, examples) {
     for (var _i = 0, operationPointers_1 = operationPointers; _i < operationPointers_1.length; _i++) {
         var opp = operationPointers_1[_i];
         var operation = opp.getValue(apiSpec);
+        if (null != result[operation.operationId]) {
+            continue;
+        }
         var requestSchema = getRequestSchema(operation);
         var responsesSchema = getResponsesSchema(operation);
         var pathTemplate = new simpletemplate_1.Template(opp.get(-2).replace(/{/, '{{').replace(/}/, '}}'));
@@ -132,7 +135,7 @@ function getRequestSchema(operation) {
             console.error("duplicate parameter " + p.name + " in " + operation.operationId);
         }
         pp.setValue(result.properties, schema, true);
-        if (p.required) {
+        if (p.required && p["in"] !== 'body') {
             var rp = new json_ref_1.JsonPointer([p["in"], 'required', '-']);
             rp.setValue(result.properties, p.name, true);
         }
