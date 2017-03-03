@@ -27,7 +27,7 @@ jsf.format('date', (gen: IGenerators, schema: any) => {
   //let result = gen.randexp('^\\d{4}-\\d{2}-\\d{2}$');
   let date = new Date((Math.random()*2-1)*Date.now());
   let result = `${date.getFullYear()}-${padNumber(date.getMonth(),2)}-${padNumber(date.getDate(),2)}`;
-  console.error(`date schema: ${result} for ${JSON.stringify(schema)}`);
+  //console.error(`date schema: ${result} for ${JSON.stringify(schema)}`);
   return result;
 });
 
@@ -35,7 +35,7 @@ jsf.format('guid', (gen: IGenerators, schema: any) => {
   //let guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
   //let result = gen.randexp(guidPattern);
   let result = chance.guid();
-  console.error(`guid schema: ${result} for ${JSON.stringify(schema)}`);
+  //console.error(`guid schema: ${result} for ${JSON.stringify(schema)}`);
   return result;
 });
 
@@ -48,13 +48,13 @@ jsf.format('byte', (gen: IGenerators, schema: any) => {
 jsf.format('phonenumber', (gen: IGenerators, schema: any) => {
   let pattern = schema.pattern || '\\+[-0-9]{8-12}$';
   let result = gen.randexp(pattern);
-  console.error(`phonenumber schema: ${result} for ${JSON.stringify(schema)}`);
+  //console.error(`phonenumber schema: ${result} for ${JSON.stringify(schema)}`);
   return result;
 });
 
 jsf.format('ip-address', (gen: IGenerators, schema: any) => {
   let result = [1,2,3,4].map(() => Math.round(1+254*Math.random())).join('.');
-  console.error(`ip-address schema: ${result} for ${JSON.stringify(schema)}`);
+  console.error(`ip-address -- you should use ipv4 or ipv6: ${result} for ${JSON.stringify(schema)}`);
   return result;
 })
 

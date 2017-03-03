@@ -14,14 +14,14 @@ jsf.format('date', function (gen, schema) {
     //let result = gen.randexp('^\\d{4}-\\d{2}-\\d{2}$');
     var date = new Date((Math.random() * 2 - 1) * Date.now());
     var result = date.getFullYear() + "-" + padNumber(date.getMonth(), 2) + "-" + padNumber(date.getDate(), 2);
-    console.error("date schema: " + result + " for " + JSON.stringify(schema));
+    //console.error(`date schema: ${result} for ${JSON.stringify(schema)}`);
     return result;
 });
 jsf.format('guid', function (gen, schema) {
     //let guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
     //let result = gen.randexp(guidPattern);
     var result = chance.guid();
-    console.error("guid schema: " + result + " for " + JSON.stringify(schema));
+    //console.error(`guid schema: ${result} for ${JSON.stringify(schema)}`);
     return result;
 });
 jsf.format('byte', function (gen, schema) {
@@ -32,12 +32,12 @@ jsf.format('byte', function (gen, schema) {
 jsf.format('phonenumber', function (gen, schema) {
     var pattern = schema.pattern || '\\+[-0-9]{8-12}$';
     var result = gen.randexp(pattern);
-    console.error("phonenumber schema: " + result + " for " + JSON.stringify(schema));
+    //console.error(`phonenumber schema: ${result} for ${JSON.stringify(schema)}`);
     return result;
 });
 jsf.format('ip-address', function (gen, schema) {
     var result = [1, 2, 3, 4].map(function () { return Math.round(1 + 254 * Math.random()); }).join('.');
-    console.error("ip-address schema: " + result + " for " + JSON.stringify(schema));
+    console.error("ip-address -- you should use ipv4 or ipv6: " + result + " for " + JSON.stringify(schema));
     return result;
 });
 var queryPropPointer = new json_ref_1.JsonPointer(['properties', 'query', 'properties']);
