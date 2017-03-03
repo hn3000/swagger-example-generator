@@ -25,7 +25,7 @@ jsf.format('guid', function (gen, schema) {
     return result;
 });
 jsf.format('byte', function (gen, schema) {
-    var result = '...'; //gen.randexp('^[^]{1}$');
+    var result = 'VGhpcyBpcyBub3QgYSBmaWxlCg== ...'; //gen.randexp('^[^]{1}$');
     //console.error(`byte schema: ${result} for ${JSON.stringify(schema)}`);
     return result;
 });
@@ -63,7 +63,10 @@ function exemplify(apiSpec, examples) {
             var url = path + (query === '' ? '' : '?' + query);
             exampleRequest.url = url;
             examples[operation.operationId] = {
-                request: exampleRequest,
+                request: {
+                    url: exampleRequest.url,
+                    body: exampleRequest.body
+                },
                 response: exampleResponses
             };
         }
@@ -159,7 +162,8 @@ function getRequestSchema(operation) {
 function getResponsesSchema(operation) {
     var result = {};
     result.type = 'object';
-    result.required = Object.keys(operation.responses);
+    result.required = Object.keys(operation.responses).filter(function (x) { return (!operation.responses[x]['x-no-example']); });
+    debugger;
     result.properties = result.required.reduce(function (o, x) { return (o[x] = operation.responses[x].schema, o); }, {});
     return result;
 }

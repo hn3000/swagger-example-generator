@@ -40,7 +40,7 @@ jsf.format('guid', (gen: IGenerators, schema: any) => {
 });
 
 jsf.format('byte', (gen: IGenerators, schema: any) => {
-  let result = '...'; //gen.randexp('^[^]{1}$');
+  let result = 'VGhpcyBpcyBub3QgYSBmaWxlCg== ...'; //gen.randexp('^[^]{1}$');
   //console.error(`byte schema: ${result} for ${JSON.stringify(schema)}`);
   return result;
 });
@@ -110,7 +110,10 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
       exampleRequest.url = url;
 
       examples[operation.operationId] = {
-        request: exampleRequest,
+        request: {
+          url: exampleRequest.url,
+          body: exampleRequest.body
+        },
         response: exampleResponses
       };
     } catch (x) {
@@ -211,7 +214,8 @@ function getRequestSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Sch
 function getResponsesSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Schema {
   let result: SwaggerSchema.Schema = {};
   result.type = 'object';
-  result.required = Object.keys(operation.responses) as any;
+  result.required = Object.keys(operation.responses).filter((x) => (!operation.responses[x]['x-no-example'])) as any;
+  debugger;
   result.properties = result.required.reduce((o,x) => (o[x] = operation.responses[x].schema,o), {});
 
   return result;
