@@ -25,7 +25,7 @@ jsf.format('guid', function (gen, schema) {
     return result;
 });
 jsf.format('byte', function (gen, schema) {
-    var result = 'VGhpcyBpcyBub3QgYSBmaWxlCg== ...'; //gen.randexp('^[^]{1}$');
+    var result = 'VGhpcyBpcyBub3QgYSBmaWxlCg=='; //gen.randexp('^[^]{1}$');
     //console.error(`byte schema: ${result} for ${JSON.stringify(schema)}`);
     return result;
 });

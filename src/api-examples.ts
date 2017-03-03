@@ -40,7 +40,7 @@ jsf.format('guid', (gen: IGenerators, schema: any) => {
 });
 
 jsf.format('byte', (gen: IGenerators, schema: any) => {
-  let result = 'VGhpcyBpcyBub3QgYSBmaWxlCg== ...'; //gen.randexp('^[^]{1}$');
+  let result = 'VGhpcyBpcyBub3QgYSBmaWxlCg=='; //gen.randexp('^[^]{1}$');
   //console.error(`byte schema: ${result} for ${JSON.stringify(schema)}`);
   return result;
 });
