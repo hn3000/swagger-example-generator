@@ -52,7 +52,7 @@ function exemplify(apiSpec, examples) {
         }
         var requestSchema = getRequestSchema(operation);
         var responsesSchema = getResponsesSchema(operation);
-        var pathTemplate = new simpletemplate_1.Template(opp.get(-2).replace(/{/, '{{').replace(/}/, '}}'));
+        var pathTemplate = new simpletemplate_1.Template(opp.get(-2).replace(/{/g, '{{').replace(/}/g, '}}'));
         var queryParams = Object.keys(queryPropPointer.getValue(requestSchema) || {});
         var queryTemplate = new simpletemplate_1.Template(queryParams.map(function (x) { return x + "={{" + x + "}}"; }).join('&'));
         try {

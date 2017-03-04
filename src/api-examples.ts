@@ -94,7 +94,7 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
     let requestSchema = getRequestSchema(operation);
     let responsesSchema = getResponsesSchema(operation);
 
-    let pathTemplate = new Template(opp.get(-2).replace(/{/, '{{').replace(/}/, '}}'));
+    let pathTemplate = new Template(opp.get(-2).replace(/{/g, '{{').replace(/}/g, '}}'));
 
     let queryParams = Object.keys(queryPropPointer.getValue(requestSchema)||{});
     let queryTemplate = new Template(queryParams.map((x) => `${x}={{${x}}}`).join('&'));
