@@ -18,9 +18,13 @@ jsf.format('date', function (gen, schema) {
     return result;
 });
 jsf.format('guid', function (gen, schema) {
-    //let guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
+    var guidPattern = schema.pattern || '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$';
     //let result = gen.randexp(guidPattern);
-    var result = chance.guid();
+    //let result = chance.guid();
+    var result = '54686973-2069-7320-6a75-737420616e20';
+    if (!new RegExp(guidPattern).test(result)) {
+        console.error("fixed guid example does not match pattern");
+    }
     //console.error(`guid schema: ${result} for ${JSON.stringify(schema)}`);
     return result;
 });
