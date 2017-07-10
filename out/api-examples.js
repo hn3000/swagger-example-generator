@@ -119,8 +119,9 @@ function getRequestSchema(operation) {
     var result = {};
     result.type = 'object';
     result.properties = {};
-    for (var _i = 0, _a = operation.parameters; _i < _a.length; _i++) {
-        var p = _a[_i];
+    var parameters = operation.parameters || [];
+    for (var _i = 0, parameters_1 = parameters; _i < parameters_1.length; _i++) {
+        var p = parameters_1[_i];
         var schema = null;
         var pp = null;
         switch (p["in"]) {
@@ -138,8 +139,8 @@ function getRequestSchema(operation) {
                     type: ps.type,
                     format: ps.format
                 };
-                for (var _b = 0, paramSchemaAttributes_1 = paramSchemaAttributes; _b < paramSchemaAttributes_1.length; _b++) {
-                    var a = paramSchemaAttributes_1[_b];
+                for (var _a = 0, paramSchemaAttributes_1 = paramSchemaAttributes; _a < paramSchemaAttributes_1.length; _a++) {
+                    var a = paramSchemaAttributes_1[_a];
                     if (null != ps[a]) {
                         schema[a] = ps[a];
                     }
@@ -157,8 +158,8 @@ function getRequestSchema(operation) {
     }
     var parts = Object.keys(result.properties);
     result.required = parts;
-    for (var _c = 0, parts_1 = parts; _c < parts_1.length; _c++) {
-        var i = parts_1[_c];
+    for (var _b = 0, parts_1 = parts; _b < parts_1.length; _b++) {
+        var i = parts_1[_b];
         result.properties[i].type = 'object';
     }
     return result;
@@ -167,7 +168,6 @@ function getResponsesSchema(operation) {
     var result = {};
     result.type = 'object';
     result.required = Object.keys(operation.responses).filter(function (x) { return (!operation.responses[x]['x-no-example']); });
-    debugger;
     result.properties = result.required.reduce(function (o, x) { return (o[x] = operation.responses[x].schema, o); }, {});
     return result;
 }

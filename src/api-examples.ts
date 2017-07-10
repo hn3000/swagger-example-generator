@@ -109,7 +109,7 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
       let path = pathTemplate.render(exampleRequest.path || {});
       let query = queryTemplate.render(exampleRequest.query || {});
 
-      let url = path + (query === '' ? '' : '?' + query); 
+      let url = path + (query === '' ? '' : '?' + query);
 
       exampleRequest.url = url;
 
@@ -170,7 +170,9 @@ function getRequestSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Sch
   result.type = 'object';
   result.properties = { };
 
-  for (let p of operation.parameters) {
+  const parameters = operation.parameters || [];
+
+  for (let p of parameters) {
     let schema: SwaggerSchema.Schema = null;
     let pp: JsonPointer = null;
     switch (p.in) {
@@ -219,7 +221,6 @@ function getResponsesSchema(operation: SwaggerSchema.Operation): SwaggerSchema.S
   let result: SwaggerSchema.Schema = {};
   result.type = 'object';
   result.required = Object.keys(operation.responses).filter((x) => (!operation.responses[x]['x-no-example'])) as any;
-  debugger;
   result.properties = result.required.reduce((o,x) => (o[x] = operation.responses[x].schema,o), {});
 
   return result;
