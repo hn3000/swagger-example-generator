@@ -36,12 +36,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var minimist = require("minimist");
-var sway = require("sway");
+var jsonRef = require("@hn3000/json-ref");
+var yaml = require("js-yaml");
 var api_examples_1 = require("./api-examples");
 var fs = require("fs");
 function runX(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var args, examples, exampleFile, newExamples, specFile, spec;
+        var args, examples, exampleFile, newExamples, specFile, processor, spec;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -61,9 +62,10 @@ function runX(argv) {
                     newExamples = examples || {};
                     specFile = args['spec'];
                     console.error("----- " + specFile);
-                    return [4 /*yield*/, sway.create({ definition: specFile })];
+                    processor = new jsonRef.JsonReferenceProcessor(fetchFile);
+                    return [4 /*yield*/, processor.expandRef(specFile)];
                 case 1:
-                    spec = (_a.sent()).definition;
+                    spec = (_a.sent());
                     console.error("got spec with " + Object.keys(spec).join(', '));
                     newExamples = api_examples_1.exemplify(spec, newExamples);
                     console.log(JSON.stringify(newExamples, null, 2));
@@ -76,3 +78,26 @@ function run(argv) {
     return Promise.resolve(argv).then(runX);
 }
 run(process.argv.slice(2)).then(function () { return console.error('done.'); }, function (x) { return console.error(x); });
+function fetchFile(x) {
+    return Promise.resolve(x).then(function (x) {
+        //console.log("reading ", x, process.cwd());
+        var result = fs.readFileSync(x, 'utf-8');
+        var sufPos = x.lastIndexOf('.');
+        var suffix = sufPos > -1 ? x.substring(sufPos + 1).toLowerCase() : '';
+        if (suffix === 'yaml' || suffix === 'yml') {
+            //console.warn(`warn: yaml not supported (${x})`);
+            result = yaml.safeLoad(result);
+        }
+        else if (suffix === 'json') {
+            console.info("checking json " + x + " for BOM");
+            if (result.charAt(0) === '\uFEFF') {
+                console.warn("stripping BOM from " + x);
+                result = result.substr(1);
+            }
+        }
+        else if (suffix !== 'json') {
+            console.warn("warn: " + suffix + " not supported (" + x + ")");
+        }
+        return result;
+    });
+}

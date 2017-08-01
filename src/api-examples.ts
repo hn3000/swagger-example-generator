@@ -90,8 +90,13 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
 
   for (let opp of operationPointers) {
     let operation = opp.getValue(apiSpec) as SwaggerSchema.Operation;
+    let operationId = operation.operationId;
 
-    if (null != result[operation.operationId]) {
+    if (null == operationId) {
+      operationId = opp.keys.slice(1).join('_').replace(/[\/]/g, '_');
+    }
+
+    if (null != result[operationId]) {
       continue;
     }
 
@@ -113,7 +118,7 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
 
       exampleRequest.url = url;
 
-      examples[operation.operationId] = {
+      examples[operationId] = {
         request: {
           url: exampleRequest.url,
           body: exampleRequest.body
@@ -122,7 +127,7 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
       };
     } catch (x) {
       console.error(x);
-      examples[operation.operationId] = {
+      examples[operationId] = {
         'x-exception': x.toString(),
         'x-request-schema': requestSchema,
         'x-responses-schema': responsesSchema
@@ -200,7 +205,7 @@ function getRequestSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Sch
     if (pp.getValue(result.properties)) {
       console.error(`duplicate parameter ${p.name} in ${operation.operationId}`);
     }
-    pp.setValue(result.properties, schema, true);
+    pp.setValue(result.properties, {...schema}, true);
     if (p.required && p.in !== 'body') {
       let rp = new JsonPointer([p.in, 'required', '-']);
       rp.setValue(result.properties, p.name, true);
@@ -210,7 +215,7 @@ function getRequestSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Sch
   let parts = Object.keys(result.properties);
   result.required = parts as [string];
   for (let i of parts) {
-    result.properties[i].type = 'object';
+    result.properties[i] = {...result.properties[i], type: 'object' };
   }
 
 

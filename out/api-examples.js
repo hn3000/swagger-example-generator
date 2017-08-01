@@ -1,4 +1,12 @@
 "use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 exports.__esModule = true;
 var jsf = require("json-schema-faker");
 var json_ref_1 = require("@hn3000/json-ref");
@@ -51,7 +59,11 @@ function exemplify(apiSpec, examples) {
     for (var _i = 0, operationPointers_1 = operationPointers; _i < operationPointers_1.length; _i++) {
         var opp = operationPointers_1[_i];
         var operation = opp.getValue(apiSpec);
-        if (null != result[operation.operationId]) {
+        var operationId = operation.operationId;
+        if (null == operationId) {
+            operationId = opp.keys.slice(1).join('_').replace(/[\/]/g, '_');
+        }
+        if (null != result[operationId]) {
             continue;
         }
         var requestSchema = getRequestSchema(operation);
@@ -66,7 +78,7 @@ function exemplify(apiSpec, examples) {
             var query = queryTemplate.render(exampleRequest.query || {});
             var url = path + (query === '' ? '' : '?' + query);
             exampleRequest.url = url;
-            examples[operation.operationId] = {
+            examples[operationId] = {
                 request: {
                     url: exampleRequest.url,
                     body: exampleRequest.body
@@ -76,7 +88,7 @@ function exemplify(apiSpec, examples) {
         }
         catch (x) {
             console.error(x);
-            examples[operation.operationId] = {
+            examples[operationId] = {
                 'x-exception': x.toString(),
                 'x-request-schema': requestSchema,
                 'x-responses-schema': responsesSchema
@@ -150,7 +162,7 @@ function getRequestSchema(operation) {
         if (pp.getValue(result.properties)) {
             console.error("duplicate parameter " + p.name + " in " + operation.operationId);
         }
-        pp.setValue(result.properties, schema, true);
+        pp.setValue(result.properties, __assign({}, schema), true);
         if (p.required && p["in"] !== 'body') {
             var rp = new json_ref_1.JsonPointer([p["in"], 'required', '-']);
             rp.setValue(result.properties, p.name, true);
@@ -160,7 +172,7 @@ function getRequestSchema(operation) {
     result.required = parts;
     for (var _b = 0, parts_1 = parts; _b < parts_1.length; _b++) {
         var i = parts_1[_b];
-        result.properties[i].type = 'object';
+        result.properties[i] = __assign({}, result.properties[i], { type: 'object' });
     }
     return result;
 }
