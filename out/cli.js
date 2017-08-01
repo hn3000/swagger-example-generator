@@ -89,7 +89,6 @@ function fetchFile(x) {
             result = yaml.safeLoad(result);
         }
         else if (suffix === 'json') {
-            console.info("checking json " + x + " for BOM");
             if (result.charAt(0) === '\uFEFF') {
                 console.warn("stripping BOM from " + x);
                 result = result.substr(1);
