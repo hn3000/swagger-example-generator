@@ -5,6 +5,7 @@ export interface IApiExampleRequest {
 }
 export interface IApiExample {
     request?: IApiExampleRequest;
+    requests?: IApiExampleRequest[];
     response?: {
         [status: string]: any;
     };
@@ -12,7 +13,14 @@ export interface IApiExample {
     'x-request-schema'?: any;
     'x-responses-schema'?: any;
 }
+export interface IExemplifyOptions {
+    examples: IApiExampleData;
+    requestExamples?: number;
+    responseExamples?: number;
+    showAllFields?: boolean;
+}
 export interface IApiExampleData {
     [operationId: string]: IApiExample;
 }
-export declare function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData): IApiExampleData;
+export declare function exemplify(apiSpec: SwaggerSchema.Spec, options: IExemplifyOptions): IApiExampleData;
+export declare function different<X extends any>(a: X, b: X): boolean;

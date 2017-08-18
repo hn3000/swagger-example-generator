@@ -8,6 +8,39 @@ import { Template } from '@hn3000/simpletemplate';
 
 import Chance = require('chance');
 
+
+
+
+export interface IApiExampleRequest {
+  url: string;
+  body: any;
+}
+
+export interface IApiExample {
+  request?: IApiExampleRequest;
+  requests?: IApiExampleRequest[];
+  response?: {
+    [status:string]: any;
+  };
+  'x-exception'?: any;
+  'x-request-schema'?: any;
+  'x-responses-schema'?: any;
+}
+
+export interface IExemplifyOptions {
+  examples: IApiExampleData;
+  requestExamples?: number;
+  responseExamples?: number;
+  showAllFields?: boolean;
+}
+
+export interface IApiExampleData {
+  [operationId:string]: IApiExample;
+}
+
+
+
+
 let chance = new Chance();
 
 interface IGenerators {
@@ -62,28 +95,10 @@ jsf.format('ip-address', (gen: IGenerators, schema: any) => {
   return result;
 })
 
-export interface IApiExampleRequest {
-  url: string;
-  body: any;
-}
-
-export interface IApiExample {
-  request?: IApiExampleRequest;
-  response?: {
-    [status:string]: any;
-  };
-  'x-exception'?: any;
-  'x-request-schema'?: any;
-  'x-responses-schema'?: any;
-}
-
-export interface IApiExampleData {
-  [operationId:string]: IApiExample;
-}
-
 const queryPropPointer = new JsonPointer(['properties', 'query', 'properties']);
 
-export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData): IApiExampleData {
+export function exemplify(apiSpec: SwaggerSchema.Spec, options: IExemplifyOptions): IApiExampleData {
+  let examples = options.examples || {};
   let result: any = JSON.parse(JSON.stringify(examples));
 
   let operationPointers = JsonPointer.pointers(apiSpec, isOperation);
@@ -108,23 +123,41 @@ export function exemplify(apiSpec: SwaggerSchema.Spec, examples: IApiExampleData
     let queryParams = Object.keys(queryPropPointer.getValue(requestSchema)||{});
     let queryTemplate = new Template(queryParams.map((x) => `${x}={{${x}}}`).join('&'));
     try {
-      let exampleRequest = jsf(requestSchema);
-      let exampleResponses = jsf(responsesSchema);
 
-      let path = pathTemplate.render(exampleRequest.path || {});
-      let query = queryTemplate.render(exampleRequest.query || {});
+      let requests = [] as IApiExampleRequest[];
 
-      let url = path + (query === '' ? '' : '?' + query);
+      for (let i = 0, n = 3*options.requestExamples; i < n; ++i) {
+        let exampleRequest = jsf(requestSchema);
 
-      exampleRequest.url = url;
+        let path = pathTemplate.render(exampleRequest.path || {});
+        let query = queryTemplate.render(exampleRequest.query || {});
 
-      examples[operationId] = {
-        request: {
+        let url = path + (query === '' ? '' : '?' + query);
+
+        exampleRequest.url = url;
+        const example = {
           url: exampleRequest.url,
           body: exampleRequest.body
-        },
+        };
+        if (requests.every(x => different(x, example))) {
+          requests.push(example);
+        }
+
+        if (requests.length === options.requestExamples) {
+          break;
+        }
+      }
+
+      let exampleResponses = jsf(responsesSchema);
+
+      examples[operationId] = {
         response: exampleResponses
       };
+      if (requests.length === 1) {
+        examples[operationId].request = requests[0];
+      } else {
+        examples[operationId].requests = requests;
+      }
     } catch (x) {
       console.error(x);
       examples[operationId] = {
@@ -229,4 +262,29 @@ function getResponsesSchema(operation: SwaggerSchema.Operation): SwaggerSchema.S
   result.properties = result.required.reduce((o,x) => (o[x] = operation.responses[x].schema,o), {});
 
   return result;
+}
+
+export function different<X extends any> (a: X, b: X) {
+  const typeA = typeof a;
+  const typeB = typeof b;
+
+  if (typeA !== typeB) {
+    return true;
+  }
+
+  if (typeA !== 'object' || null == a || (a instanceof RegExp) || (a instanceof Date)) {
+    return a != b;
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length != keysB.length) {
+    return true;
+  }
+  for (let k of keysA) {
+    if (different(a[k], b[k])) {
+      return true;
+    }
+  }
+  return false;
 }

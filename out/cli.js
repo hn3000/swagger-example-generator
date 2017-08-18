@@ -40,26 +40,37 @@ var jsonRef = require("@hn3000/json-ref");
 var yaml = require("js-yaml");
 var api_examples_1 = require("./api-examples");
 var fs = require("fs");
+var validArgs = [
+    'examples',
+    'requestExamples',
+    'spec'
+];
 function runX(argv) {
     return __awaiter(this, void 0, void 0, function () {
-        var args, examples, exampleFile, newExamples, specFile, processor, spec;
+        var args, examplesFromFile, exampleFile, examples, requestExamples, responseExamples, specFile, processor, spec;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     args = minimist(argv);
-                    if (Object.keys(args).some(function (x) { return (x !== 'examples' && x !== 'spec' && x !== '_'); })
+                    if (Object.keys(args).some(function (x) { return (-1 === validArgs.indexOf(x) && x !== '_'); })
                         || args._.length > 0
                         || !args['spec']) {
                         console.error("usage: swagger-example-gen [--examples=<examples.json>] --spec=<spec.(json|yaml)>");
                         console.error(args);
                         return [2 /*return*/];
                     }
-                    examples = null;
+                    examplesFromFile = null;
                     exampleFile = args['examples'];
                     if (null != exampleFile && fs.existsSync(exampleFile)) {
-                        examples = JSON.parse(fs.readFileSync(exampleFile, 'utf-8'));
+                        examplesFromFile = JSON.parse(fs.readFileSync(exampleFile, 'utf-8'));
                     }
-                    newExamples = examples || {};
+                    examples = examplesFromFile || {};
+                    requestExamples = args['requestExamples'];
+                    if (null == requestExamples)
+                        requestExamples = 1;
+                    responseExamples = args['responseExamples'];
+                    if (null == responseExamples)
+                        responseExamples = 1;
                     specFile = args['spec'];
                     console.error("----- " + specFile);
                     processor = new jsonRef.JsonReferenceProcessor(fetchFile);
@@ -67,8 +78,8 @@ function runX(argv) {
                 case 1:
                     spec = (_a.sent());
                     console.error("got spec with " + Object.keys(spec).join(', '));
-                    newExamples = api_examples_1.exemplify(spec, newExamples);
-                    console.log(JSON.stringify(newExamples, null, 2));
+                    examples = api_examples_1.exemplify(spec, { examples: examples, requestExamples: requestExamples, responseExamples: responseExamples });
+                    console.log(JSON.stringify(examples, null, 2));
                     return [2 /*return*/];
             }
         });

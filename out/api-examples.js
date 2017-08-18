@@ -53,7 +53,8 @@ jsf.format('ip-address', function (gen, schema) {
     return result;
 });
 var queryPropPointer = new json_ref_1.JsonPointer(['properties', 'query', 'properties']);
-function exemplify(apiSpec, examples) {
+function exemplify(apiSpec, options) {
+    var examples = options.examples || {};
     var result = JSON.parse(JSON.stringify(examples));
     var operationPointers = json_ref_1.JsonPointer.pointers(apiSpec, isOperation);
     for (var _i = 0, operationPointers_1 = operationPointers; _i < operationPointers_1.length; _i++) {
@@ -72,19 +73,39 @@ function exemplify(apiSpec, examples) {
         var queryParams = Object.keys(queryPropPointer.getValue(requestSchema) || {});
         var queryTemplate = new simpletemplate_1.Template(queryParams.map(function (x) { return x + "={{" + x + "}}"; }).join('&'));
         try {
-            var exampleRequest = jsf(requestSchema);
-            var exampleResponses = jsf(responsesSchema);
-            var path = pathTemplate.render(exampleRequest.path || {});
-            var query = queryTemplate.render(exampleRequest.query || {});
-            var url = path + (query === '' ? '' : '?' + query);
-            exampleRequest.url = url;
-            examples[operationId] = {
-                request: {
+            var requests = [];
+            var _loop_1 = function (i, n) {
+                var exampleRequest = jsf(requestSchema);
+                var path = pathTemplate.render(exampleRequest.path || {});
+                var query = queryTemplate.render(exampleRequest.query || {});
+                var url = path + (query === '' ? '' : '?' + query);
+                exampleRequest.url = url;
+                var example = {
                     url: exampleRequest.url,
                     body: exampleRequest.body
-                },
+                };
+                if (requests.every(function (x) { return different(x, example); })) {
+                    requests.push(example);
+                }
+                if (requests.length === options.requestExamples) {
+                    return "break";
+                }
+            };
+            for (var i = 0, n = 3 * options.requestExamples; i < n; ++i) {
+                var state_1 = _loop_1(i, n);
+                if (state_1 === "break")
+                    break;
+            }
+            var exampleResponses = jsf(responsesSchema);
+            examples[operationId] = {
                 response: exampleResponses
             };
+            if (requests.length === 1) {
+                examples[operationId].request = requests[0];
+            }
+            else {
+                examples[operationId].requests = requests;
+            }
         }
         catch (x) {
             console.error(x);
@@ -183,3 +204,26 @@ function getResponsesSchema(operation) {
     result.properties = result.required.reduce(function (o, x) { return (o[x] = operation.responses[x].schema, o); }, {});
     return result;
 }
+function different(a, b) {
+    var typeA = typeof a;
+    var typeB = typeof b;
+    if (typeA !== typeB) {
+        return true;
+    }
+    if (typeA !== 'object' || null == a || (a instanceof RegExp) || (a instanceof Date)) {
+        return a != b;
+    }
+    var keysA = Object.keys(a);
+    var keysB = Object.keys(b);
+    if (keysA.length != keysB.length) {
+        return true;
+    }
+    for (var _i = 0, keysA_1 = keysA; _i < keysA_1.length; _i++) {
+        var k = keysA_1[_i];
+        if (different(a[k], b[k])) {
+            return true;
+        }
+    }
+    return false;
+}
+exports.different = different;

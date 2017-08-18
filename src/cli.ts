@@ -6,11 +6,18 @@ import * as yaml from 'js-yaml';
 import { exemplify } from './api-examples'
 import * as fs from 'fs';
 
+const validArgs = [
+  'examples',
+  'requestExamples',
+  'spec',
+  'configScript'
+];
+
 async function runX(argv: string[]): Promise<void> {
   let args = minimist(argv);
 
   if (
-    Object.keys(args).some((x) => (x !== 'examples' && x !== 'spec' && x !== '_'))
+    Object.keys(args).some((x) => (-1 === validArgs.indexOf(x) && x !== '_'))
     || args._.length > 0
     || !args['spec']
   ) {
@@ -20,13 +27,19 @@ async function runX(argv: string[]): Promise<void> {
   }
 
 
-  let examples = null;
+  let examplesFromFile = null;
   let exampleFile = args['examples'];
   if (null != exampleFile && fs.existsSync(exampleFile)) {
-    examples = JSON.parse(fs.readFileSync(exampleFile, 'utf-8'));
+    examplesFromFile = JSON.parse(fs.readFileSync(exampleFile, 'utf-8'));
   }
 
-  let newExamples = examples || {};
+  let examples = examplesFromFile || {};
+
+  let requestExamples = args['requestExamples'];
+  if (null == requestExamples) requestExamples = 1;
+
+  let responseExamples = args['responseExamples'];
+  if (null == responseExamples) responseExamples = 1;
 
   let specFile = args['spec'];
 
@@ -38,9 +51,9 @@ async function runX(argv: string[]): Promise<void> {
 
   console.error(`got spec with ${Object.keys(spec).join(', ')}`);
 
-  newExamples = exemplify(spec, newExamples);
+  examples = exemplify(spec, { examples, requestExamples, responseExamples });
 
-  console.log(JSON.stringify(newExamples, null, 2));
+  console.log(JSON.stringify(examples, null, 2));
 }
 
 function run(argv: string[]): Promise<void> {
