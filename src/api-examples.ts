@@ -203,6 +203,13 @@ const paramSchemaAttributes = [
   "items"
 ];
 
+type JustParameter =
+|SwaggerSchema.BodyParameter
+|SwaggerSchema.QueryParameter
+|SwaggerSchema.HeaderParameter
+|SwaggerSchema.PathParameter
+|SwaggerSchema.FormDataParameter;
+
 function getRequestSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Schema {
   let result: SwaggerSchema.Schema = {};
   result.type = 'object';
@@ -210,9 +217,10 @@ function getRequestSchema(operation: SwaggerSchema.Operation): SwaggerSchema.Sch
 
   const parameters = operation.parameters || [];
 
-  for (let p of parameters) {
+  for (let px of parameters) {
     let schema: SwaggerSchema.Schema = null;
     let pp: JsonPointer = null;
+    const p = px as (JustParameter);
     switch (p.in) {
       case 'body':
         pp = new JsonPointer([p.in]);
@@ -259,7 +267,10 @@ function getResponsesSchema(operation: SwaggerSchema.Operation): SwaggerSchema.S
   let result: SwaggerSchema.Schema = {};
   result.type = 'object';
   result.required = Object.keys(operation.responses).filter((x) => (!operation.responses[x]['x-no-example'])) as any;
-  result.properties = result.required.reduce((o,x) => (o[x] = operation.responses[x].schema,o), {});
+  result.properties = result.required.reduce(
+    (o,x) => (o[x] = (operation.responses[x] as SwaggerSchema.Response).schema,o)
+    , {}
+  );
 
   return result;
 }

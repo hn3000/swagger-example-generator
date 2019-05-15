@@ -1,11 +1,14 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
 var jsf = require("json-schema-faker");
@@ -154,9 +157,10 @@ function getRequestSchema(operation) {
     result.properties = {};
     var parameters = operation.parameters || [];
     for (var _i = 0, parameters_1 = parameters; _i < parameters_1.length; _i++) {
-        var p = parameters_1[_i];
+        var px = parameters_1[_i];
         var schema = null;
         var pp = null;
+        var p = px;
         switch (p["in"]) {
             case 'body':
                 pp = new json_ref_1.JsonPointer([p["in"]]);
